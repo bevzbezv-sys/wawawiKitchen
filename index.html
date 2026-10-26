@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f1e7">
+<title>Первый месяц — интервью с Шефом</title>
+<style>
+  :root { --paper:#f6f1e7; --card:#fffdf8; --ink:#394638; --muted:#777767; --green:#dfe7d5; --green-dark:#607454; --line:#e5dece; --accent:#e9bd70; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .app { width:min(100%,560px); min-height:100dvh; margin:auto; padding:20px 16px 28px; display:flex; flex-direction:column; gap:18px; }
+  header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .brand { font-size:12px; letter-spacing:.12em; font-weight:800; }
+  .step { color:var(--muted); font-size:13px; }
+  .progress { height:5px; background:#e7e0d2; border-radius:9px; overflow:hidden; }
+  .progress > div { width:0%; height:100%; background:var(--green-dark); transition:width .2s ease; }
+  .character-row { display:flex; align-items:center; gap:14px; }
+  .mascot { width:100px; height:110px; flex:none; border-radius:24px; background:#eee5d3; display:grid; place-items:center; overflow:hidden; }
+  .mascot img { width:100%; height:100%; object-fit:contain; }
+  .mascot-placeholder { font-size:48px; }
+  .bubble { flex:1; background:var(--card); border:1px solid var(--line); border-radius:18px; border-top-left-radius:5px; padding:14px; line-height:1.45; }
+  .bubble strong { display:block; margin-bottom:5px; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:20px; box-shadow:0 5px 18px #51472b0a; }
+  .eyebrow { font-size:11px; letter-spacing:.12em; color:var(--muted); font-weight:800; text-transform:uppercase; margin-bottom:8px; }
+  h1,h2 { line-height:1.18; margin:0 0 12px; letter-spacing:-.025em; }
+  h1 { font-size:30px; } h2 { font-size:23px; }
+  p { line-height:1.55; margin:0 0 14px; }
+  .subtle { color:var(--muted); font-size:13px; }
+  .answers { display:flex; flex-direction:column; gap:9px; margin-top:16px; }
+  button, textarea { font:inherit; }
+  .answer { border:1px solid var(--line); background:#fffefa; color:var(--ink); border-radius:14px; padding:14px 15px; text-align:left; min-height:50px; cursor:pointer; transition:background .15s,border-color .15s; }
+  .answer:hover,.answer:focus-visible { background:var(--green); border-color:#b6c6a7; outline:none; }
+  .answer.selected { background:var(--green); border-color:var(--green-dark); box-shadow:inset 0 0 0 1px var(--green-dark); }
+  textarea { width:100%; min-height:120px; resize:vertical; border:1px solid var(--line); border-radius:14px; padding:14px; background:#fffefa; color:var(--ink); outline-color:var(--green-dark); }
+  .field-label { display:block; font-size:13px; margin:15px 0 7px; color:var(--muted); }
+  .actions { display:flex; gap:10px; margin-top:18px; }
+  .primary,.secondary { border:0; border-radius:14px; min-height:50px; padding:12px 16px; cursor:pointer; font-weight:750; }
+  .primary { background:var(--green-dark); color:white; flex:1; }
+  .primary:disabled { opacity:.45; cursor:not-allowed; }
+  .secondary { background:#eee8dc; color:var(--ink); }
+  .note { font-size:12px; color:var(--muted); line-height:1.5; }
+  .hidden { display:none !important; }
+  .finish-icon { font-size:42px; margin-bottom:8px; }
+  @media (max-width:380px) { .app{padding:16px 12px 22px}.panel{padding:16px}h1{font-size:27px}.mascot{width:78px;height:88px}.bubble{padding:12px;font-size:14px} }
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div class="brand">ПЕРВЫЙ МЕСЯЦ</div>
+    <div class="step" id="stepLabel">Знакомство</div>
+  </header>
+  <div class="progress" aria-label="Прогресс интервью"><div id="progressFill"></div></div>
+
+  <section class="character-row" aria-label="Персонаж и приветствие">
+    <div class="mascot" id="mascot">
+      <!-- Позже заменим этот эмодзи на изображение вашего котика-повара -->
+      <div class="mascot-placeholder" aria-label="Временный персонаж">👨‍🍳</div>
+    </div>
+    <div class="bubble">
+      <strong id="speaker">Шеф на связи!</strong>
+      <span id="characterLine">Привет! Давай поговорим о том, как ты организуешь еду в обычной жизни. Здесь нет правильных и неправильных ответов.</span>
+    </div>
+  </section>
+
+  <section class="panel" id="screen" aria-live="polite">
+    <div class="eyebrow" id="eyebrow">Небольшое интервью</div>
+    <h1 id="questionTitle">Знакомство с Шефом</h1>
+    <p id="questionText">Несколько коротких вопросов помогут нам лучше понять опыт студентов с готовкой и покупкой продуктов. Обычно это занимает 3–5 минут.</p>
+    <div id="answerArea"></div>
+    <div class="actions">
+      <button class="secondary" id="backBtn" type="button">Назад</button>
+      <button class="primary" id="nextBtn" type="button">Начать</button>
+    </div>
+    <p class="note" style="margin-top:14px;margin-bottom:0" id="privacyNote">Это демонстрационный прототип. Пока ответы сохраняются только в этом браузере и не отправляются в Google Таблицы.</p>
+  </section>
+</main>
+<script>
+(() => {
+  const questions = [
+    { id:"living", kind:"single", section:"Знакомство", title:"Ты сейчас живёшь отдельно от родителей?", text:"Это поможет нам понять, какой у тебя опыт самостоятельной организации питания.", options:["Да, живу самостоятельно","Нет, живу с родителями","Живу отдельно уже довольно давно","Предпочитаю не отвечать"] },
+    { id:"months", kind:"single", section:"Знакомство", title:"Как давно ты живёшь самостоятельно?", text:"Выбери вариант, который ближе всего к твоей ситуации.", options:["До 3 месяцев","От 3 до 6 месяцев","От 6 до 12 месяцев","Больше года","Сейчас живу с родителями","Предпочитаю не отвечать"] },
+    { id:"home_food", kind:"single", section:"Знакомство", title:"Кто обычно занимался едой в твоей семье?", text:"Подумай о том, как это было до самостоятельной жизни или как устроено сейчас.", options:["В основном я","В основном родители или другие родственники","Занимались вместе","По-разному","Предпочитаю не отвечать"] },
+    { id:"late_day", kind:"single", section:"Повседневные ситуации", title:"Ты поздно вернулся домой, а готовой еды нет. Что обычно делаешь?", text:"Вспомни, как поступал в похожей ситуации в последнее время.", options:["Готовлю что-то быстрое","Заказываю еду","Покупаю что-нибудь готовое по дороге","Перекусываю тем, что есть дома","Откладываю еду на потом","Другое","Не хочу отвечать"], experience:true },
+    { id:"breakfast", kind:"single", section:"Повседневные ситуации", title:"До выхода из дома осталось 10 минут. Что происходит с завтраком?", text:"Расскажи о том, как обычно бывает у тебя, а не как хотелось бы в идеале.", options:["Готовлю что-то быстрое","Беру еду с собой","Покупаю что-нибудь по дороге","Ухожу без завтрака","Завтракаю тем, что уже приготовлено","Другое","Не хочу отвечать"], experience:true },
+    { id:"shopping", kind:"single", section:"Повседневные ситуации", title:"Как обычно выбираешь, какие продукты купить?", text:"Подумай о последнем походе в магазин.", options:["Заранее составляю список","Покупаю привычные продукты","Решаю прямо в магазине","Покупаю продукты под конкретное блюдо","За меня часто покупает кто-то другой","Другое","Не хочу отвечать"], experience:true },
+    { id:"leftovers", kind:"single", section:"Повседневные ситуации", title:"Ты замечаешь, что продукты скоро испортятся. Что обычно делаешь?", text:"Вспомни последний похожий случай, если он был.", options:["Готовлю из них что-нибудь","Замораживаю или сохраняю на потом","Стараюсь использовать в ближайший приём пищи","Иногда забываю о них","Выбрасываю, если уже нельзя использовать","Другое","Не хочу отвечать"], experience:true },
+    { id:"deadline", kind:"single", section:"Повседневные ситуации", title:"Вспомни загруженную неделю с учёбой или дедлайнами. Как тогда меняется питание?", text:"Здесь важно то, что действительно происходило у тебя.", options:["Готовлю сразу на несколько дней","Готовлю что-то очень быстрое","Чаще покупаю готовую еду","Чаще заказываю доставку","Ем нерегулярно или откладываю приёмы пищи","Особенно не меняется","Другое","Не хочу отвечать"], experience:true },
+    { id:"home_food_memory", kind:"text", section:"Личный опыт", title:"Бывает, что скучаешь по домашней еде?", text:"Если да, расскажи, о каком блюде или ситуации вспоминаешь. Можно ответить коротко или пропустить.", placeholder:"Напиши свой ответ…", optional:true },
+    { id:"difficulty", kind:"text", section:"Личный опыт", title:"Вспомни последний случай, когда тебе было трудно организовать питание. Что произошло?", text:"Можно рассказать своими словами. Если удобнее, в настоящей версии интервью здесь будет возможность ответить голосом.", placeholder:"Что произошло? Как ты поступил(а)?", optional:true },
+    { id:"needs", kind:"text", section:"Идеи для сервиса", title:"Что могло бы облегчить тебе готовку или организацию еды?", text:"Подойдут любые идеи: планирование, покупки, рецепты, хранение продуктов или что-то другое.", placeholder:"Расскажи, что помогло бы именно тебе…", optional:true }
+  ];
+
+  const state = { index:-1, answers:{}, history:[] };
+  const $ = id => document.getElementById(id);
+  const screen = $("screen"), title = $("questionTitle"), text = $("questionText");
+  const answerArea = $("answerArea"), nextBtn = $("nextBtn"), backBtn = $("backBtn");
+  const defaultGreeting = "Привет! Давай поговорим о том, как ты организуешь еду в обычной жизни. Здесь нет правильных и неправильных ответов.";
+
+  function saveLocal() {
+    try { sessionStorage.setItem("pervyi-mesyats-demo", JSON.stringify(state)); } catch(e) {}
+  }
+  function loadLocal() {
+    try {
+      const saved = sessionStorage.getItem("pervyi-mesyats-demo");
+      if (saved) Object.assign(state, JSON.parse(saved));
+    } catch(e) {}
+  }
+  function renderWelcome() {
+    state.index = -1;
+    $("stepLabel").textContent = "Знакомство";
+    $("progressFill").style.width = "0%";
+    $("eyebrow").textContent = "Небольшое интервью";
+    title.textContent = "Знакомство с Шефом";
+    text.textContent = "Несколько коротких вопросов помогут нам лучше понять опыт студентов с готовкой и покупкой продуктов. Обычно это занимает 3–5 минут.";
+    answerArea.innerHTML = "";
+    $("speaker").textContent = "Шеф на связи!";
+    $("characterLine").textContent = defaultGreeting;
+    nextBtn.textContent = "Начать";
+    backBtn.classList.add("hidden");
+    $("privacyNote").textContent = "Это демонстрационный прототип. Пока ответы сохраняются только в этом браузере и не отправляются в Google Таблицы.";
+  }
+  function renderQuestion() {
+    const q = questions[state.index];
+    if (!q) return renderFinish();
+    $("stepLabel").textContent = `${state.index+1} из ${questions.length}`;
+    $("progressFill").style.width = `${((state.index+1)/questions.length)*100}%`;
+    $("eyebrow").textContent = q.section;
+    title.textContent = q.title;
+    text.textContent = q.text;
+    $("speaker").textContent = "Шеф спрашивает";
+    $("characterLine").textContent = q.experience ? "Расскажи, как бывает у тебя на самом деле." : "Отвечай так, как тебе удобно. Можно пропустить вопрос.";
+    answerArea.innerHTML = "";
+    if (q.kind === "single") {
+      const wrap = document.createElement("div"); wrap.className = "answers";
+      (q.options || []).forEach(option => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "answer"; b.textContent = option;
+        b.setAttribute("aria-pressed", String(state.answers[q.id]?.value === option));
+        if (state.answers[q.id]?.value === option) b.classList.add("selected");
+        b.addEventListener("click", () => {
+          state.answers[q.id] = { question_id:q.id, answer_type:"choice", value:option, answered_at:new Date().toISOString() };
+          wrap.querySelectorAll("button").forEach(btn => { btn.classList.remove("selected"); btn.setAttribute("aria-pressed","false"); });
+          b.classList.add("selected"); b.setAttribute("aria-pressed","true");
+          saveLocal();
+        });
+        wrap.appendChild(b);
+      });
+      answerArea.appendChild(wrap);
+    } else {
+      const label = document.createElement("label"); label.className = "field-label"; label.htmlFor = "freeAnswer"; label.textContent = "Твой ответ (необязательно)";
+      const ta = document.createElement("textarea"); ta.id = "freeAnswer"; ta.placeholder = q.placeholder || "Напиши ответ…"; ta.maxLength = 2000;
+      ta.value = state.answers[q.id]?.value || "";
+      ta.addEventListener("input", () => {
+        state.answers[q.id] = { question_id:q.id, answer_type:"text", value:ta.value, answered_at:new Date().toISOString() };
+        saveLocal();
+      });
+      answerArea.append(label,ta);
+    }
+    nextBtn.textContent = state.index === questions.length-1 ? "Завершить" : "Дальше";
+    backBtn.classList.toggle("hidden", state.index === 0);
+    $("privacyNote").textContent = "Демо-версия: ответы хранятся локально в текущем браузере. Не вводи личные или чувствительные данные.";
+  }
+  function renderFinish() {
+    $("stepLabel").textContent = "Готово";
+    $("progressFill").style.width = "100%";
+    $("eyebrow").textContent = "Спасибо за участие";
+    title.textContent = "Спасибо, что поделился своим опытом!";
+    text.textContent = "Ты можешь скачать свои ответы в CSV-файле. Это тестовая версия: ответы пока не отправляются в Google Таблицы.";
+    answerArea.innerHTML = '<p class="note">Следующий этап — подключить Telegram и автоматическое сохранение ответов. Голосовая расшифровка пока не подключена.</p>';
+    $("speaker").textContent = "Шеф благодарит тебя!";
+    $("characterLine").textContent = "Каждый опыт помогает лучше понять, что людям действительно нужно.";
+    nextBtn.textContent = "Скачать ответы CSV";
+    backBtn.classList.toggle("hidden", state.index < 0);
+    $("privacyNote").textContent = "Экспорт включает только ответы из этой демонстрационной сессии.";
+  }
+  function csvEscape(value) { return '"' + String(value ?? "").replace(/"/g,'""') + '"'; }
+  function downloadCSV() {
+    const rows = [["question_id","question","answer_type","answer","answered_at"]];
+    questions.forEach(q => {
+      const a = state.answers[q.id];
+      if (a) rows.push([q.id,q.title,a.answer_type,a.value,a.answered_at]);
+    });
+    const csv = "\uFEFF" + rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8;"}));
+    const a = document.createElement("a"); a.href = url; a.download = "pervyi-mesyats-otvety.csv"; a.click();
+    URL.revokeObjectURL(url);
+  }
+  nextBtn.addEventListener("click", () => {
+    if (state.index === -1) { state.index = 0; renderQuestion(); saveLocal(); return; }
+    if (state.index >= questions.length) { downloadCSV(); return; }
+    state.index += 1;
+    if (state.index >= questions.length) { renderFinish(); saveLocal(); return; }
+    renderQuestion(); saveLocal();
+  });
+  backBtn.addEventListener("click", () => {
+    if (state.index > 0) { state.index -= 1; renderQuestion(); saveLocal(); }
+    else if (state.index === 0) renderWelcome();
+  });
+  loadLocal();
+  if (state.index >= 0 && state.index < questions.length) renderQuestion();
+  else if (state.index >= questions.length) renderFinish();
+  else renderWelcome();
+})();
+</script>
+</body>
+</html>
